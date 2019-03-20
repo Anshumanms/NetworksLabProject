@@ -1,11 +1,19 @@
+#include <LiquidCrystal.h>
 
-const int readpin=33;
+const int readpin=4;
+const int rs = 23, en =22 , d4 = 5, d5 = 18, d6 = 19, d7 = 21;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 // the setup routine runs once when you press reset:
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(115200);
   pinMode(readpin,INPUT);
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("hello, world!");
+
 }
 
 // the loop routine runs over and over again forever:
