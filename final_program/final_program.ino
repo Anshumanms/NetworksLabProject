@@ -1,31 +1,49 @@
 
 //----------------------------Include Libraries-------------------------------------------------------------------------
+#include "SevSeg.h"
 
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <WiFi.h> //Wifi library
 #include "esp_wpa2.h" //wpa2 library for connections to Enterprise networks
+#include <elapsedMillis.h>
+elapsedMillis timeElapsed;
 
 //----------------------------Define Constants-------------------------------------------------------------------------
 
 #define EAP_IDENTITY "jtm182004" //if connecting from another corporation, use identity@organisation.domain in Eduroam 
 #define EAP_PASSWORD "nigoltatii@63" //your Eduroam password
 
+//---------------------------------------------------------------------------------------------------------------------
+SevSeg sevseg; 
+byte numDigits = 6;
+byte digitPins[] = {2,5,4,18,19,23};
+byte segmentPins[] = {15,13,12,14,27,26,25};//A,B,C,D,E,F,G
+bool resistorsOnSegments = true;
+
+byte hardwareConfig = COMMON_ANODE; 
+
+
 //----------------------------Declare Variables-------------------------------------------------------------------------
+// set the LCD number of columns and rows
+int lcdColumns = 20;
+int lcdRows = 4;
 
 const char* ssid = "IITD_WIFI"; // Eduroam SSID
 const char* host = "10.208.67.44"; //external server domain for HTTP connection after authentification
 const uint16_t port = 8090;
-int counter = 0, page = 1;
-const int sample_interval= 500;
-int last_sample_at = 0, total_items = 0;
+int counter = 0, page = 1,count = 0;
+const int sample_interval= 1500,status_interval = 7000;
+int last_sample_at = 0, total_items_now = 0;
 const int readpin1 = 39,readpin2 = 34, confirmpin = 35, resetpin =32, billpin = 33 ;
-String table_id = "T1", page_id1 = "P1", page_id2 = "P2";
-String item_no1 = "N1", item_no2 = "N2";
-const int rs = 5, en = 18, d4 = 19, d5 = 21, d6 = 22, d7 = 23;
-float total_amount=0.0;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
-bool order[] = {false,false,false,false,false,false,false,false};
 
+String table_id = "T1", page_id1 = "P1", page_id2 = "P2";
+String item_no1 = "N1", item_no2 = "N2",item_no3 = "N3";
+
+//const int rs = 5, en = 18, d4 = 19, d5 = 21, d6 = 22, d7 = 23;
+int total_amount=0;
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
+bool order[] = {false,false,false,false,false,false,false,false};
+String empty = "                    ";
 int Order1S,Order2S,ConfirmS,ResetS, BillS;
 WiFiClient client;
 
@@ -34,7 +52,10 @@ WiFiClient client;
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(115200);
-  lcd.begin(20, 4);
+  lcd.init();
+  lcd.backlight();
+  sevseg.begin(hardwareConfig, numDigits, digitPins, segmentPins, resistorsOnSegments);
+  sevseg.setBrightness(100);
   //lcd.autoscroll();
   // Print a message to the LCD.
   lcd.setCursor(0,0);
@@ -87,47 +108,91 @@ void setup() {
   lcd.setCursor(0,0);
   lcd.print("Ready for order!");
   delay(2000);
+  timeElapsed = 0;
+  //client.stop();
 
 }
 //----------------------------loop---------------------------------------------------------------------------------------------------------
 
 void loop() {
+     sevseg.setNumber(931400);
+     sevseg.refreshDisplay();
+
     if (WiFi.status() == WL_CONNECTED) { //if we are connected to Eduroam network
+
         if (client.connected()){
-                  lcd.setCursor(0,0);
-                  lcd.print("                   "); 
-                  lcd.setCursor(0,3);
-                  lcd.print("TI:");
-                  lcd.print(total_items);
-                  lcd.setCursor(9,3);
-                  lcd.print("TA:");
-                  lcd.print(total_amount);
-                  while(client.available()) {
-                      String line = client.readStringUntil('\f');
-                      lcd.setCursor(0,0);
-                      lcd.print(line);
-                      delay(1000);
-                      Serial.println(line);
+                  sevseg.setNumber(931400);
+                  sevseg.refreshDisplay();
+
+                  if(timeElapsed > status_interval){
+                    client.print(table_id+",getstatus");
+                    timeElapsed = 0;
                   }
+                  //lcd.setCursor(0,0);
+                  //lcd.print(empty);
+                  while(client.available()) {
+                      sevseg.setNumber(931400);
+                      sevseg.refreshDisplay();
+
+                      String line = client.readStringUntil('\f');
+                      
+                      if (line.indexOf("TI:")>=0){
+                          lcd.setCursor(0,3);
+                          lcd.print(line);
+                        }
+                      else if (line.indexOf("Bill Amount")>=0){
+                        lcd.setCursor(0,1);
+                        lcd.print(empty);
+                        lcd.setCursor(0,1);
+                        lcd.print(line);
+                        }
+                      else{
+                          //Serial.println("in else");
+                          lcd.setCursor(0,0);
+                          lcd.print(empty);
+                          lcd.setCursor(0,0);
+                          lcd.print(line);
+                          delay(1000);
+                          lcd.setCursor(0,0);
+                          lcd.print(empty);
+                          Serial.println(line);
+                        }
+                  }
+                  lcd.setCursor(17,3);
+                  lcd.print("P:");
+                  lcd.print(page);
+                  sevseg.setNumber(931400);
+                  sevseg.refreshDisplay();
+//                  Order1S = digitalRead(readpin1);
+//                  Order2S = digitalRead(readpin2);
+//                  ConfirmS = digitalRead(confirmpin);
+//                  ResetS = digitalRead(resetpin);
+//                  BillS = digitalRead(billpin);      
+            if ((millis() - last_sample_at) > sample_interval){
+                  sevseg.setNumber(931400);
+                  sevseg.refreshDisplay();      
+
+                  last_sample_at = millis();
                   Order1S = digitalRead(readpin1);
                   Order2S = digitalRead(readpin2);
                   ConfirmS = digitalRead(confirmpin);
                   ResetS = digitalRead(resetpin);
-                  BillS = digitalRead(billpin);      
-            if ((millis() - last_sample_at) > sample_interval){
-                  last_sample_at = millis();
-                  Serial.print(Order1S);
-                  Serial.print("\t");
-                  Serial.print(Order2S);
-                  Serial.print("\t");
-                  Serial.print(ConfirmS);
-                  Serial.print("\t");
-                  Serial.print(ResetS);
-                  Serial.print("\t");
-                  Serial.print(BillS);
-                  Serial.println();
+                  BillS = digitalRead(billpin);
+//                  sevseg.setNumber(931400);
+//                  sevseg.refreshDisplay();      
+
+//                  Serial.print(Order1S);
+//                  Serial.print("\t");
+//                  Serial.print(Order2S);
+//                  Serial.print("\t");
+//                  Serial.print(ConfirmS);
+//                  Serial.print("\t");
+//                  Serial.print(ResetS);
+//                  Serial.print("\t");
+//                  Serial.print(BillS);
+//                  Serial.println();
                   if (Order1S ==1){
-                    total_items = total_items + 1;  
+                    //total_items_now = total_items_now + 1;  
                     client.print(table_id+","+page_id1+","+item_no1);
                     lcd.setCursor(0,2);
                     lcd.print("ITEM 1 Picked.     ");
@@ -136,7 +201,7 @@ void loop() {
                     lcd.print("                   ");
                   }
                   if (Order2S == 1){
-                    total_items = total_items + 1;
+                    total_items_now = total_items_now + 1;
                     client.print(table_id+","+page_id2+","+item_no1);
                     lcd.setCursor(0,2);
                     lcd.print("ITEM 2 Picked.      ");
@@ -146,8 +211,8 @@ void loop() {
                     
                   }
                   if (ConfirmS == 1){
-                    total_items = 0;
-                    client.print("confirm");
+                    total_items_now = 0;
+                    client.print(table_id+",confirm");
                     //lcd.clear();
                     lcd.setCursor(0,2);
                     lcd.print("Confirm             ");
@@ -157,8 +222,10 @@ void loop() {
                     
                   }
                   if (ResetS == 1){
-                    total_items = 0;
-                    client.print("reset");
+                    total_items_now = 0;
+                    client.print(table_id+",reset");
+                    lcd.setCursor(0,1);
+                    lcd.print(empty);
                     lcd.setCursor(0,2);
                     lcd.print("Reset               ");
                     delay(1000);
@@ -166,7 +233,7 @@ void loop() {
                     lcd.print("                   ");
                   }
                   if (BillS == 1){
-                    client.print(table_id+","+"bill");
+                    client.print(table_id+",bill");
                     lcd.setCursor(0,2);
                     lcd.print("Bill                ");
                     delay(1000);
@@ -174,12 +241,22 @@ void loop() {
                     lcd.print("                   ");
                     
                   }
+                  sevseg.setNumber(931400);
+                  sevseg.refreshDisplay();
+
             }
+//            sevseg.setNumber(931400);
+//            sevseg.refreshDisplay();
+            //client.stop();
         }
         else {
+            //client.stop();
             while (!client.connect(host, port)) {
               lcd.setCursor(0,0);
               lcd.print("Connection failed. ");
+              delay(2000);
+              lcd.setCursor(0,0);
+              lcd.print(empty);
               Serial.println("Connection to host failed");
               delay(1000);
             }       
@@ -187,19 +264,19 @@ void loop() {
     }
     
     else if (WiFi.status() != WL_CONNECTED) { //if we lost connection, retry
-        lcd.setCursor(0,0);
-        lcd.print("Wi-Fi Disconnected!");
+        //lcd.setCursor(0,0);
+        //lcd.print("Wi-Fi Disconnected!");
         Serial.println("Wi-Fi Disconnected!");
         WiFi.begin(ssid);      
     }
-    while (WiFi.status() != WL_CONNECTED) { //during lost connection, print dots
-        delay(500);
-        Serial.print(".");
-        counter++;
-        if(counter>=60){ //30 seconds timeout - reset board
-          ESP.restart();
-        }
-    }
+//    while (WiFi.status() != WL_CONNECTED) { //during lost connection, print dots
+//        delay(500);
+//        Serial.print(".");
+//        counter++;
+//        if(counter>=60){ //30 seconds timeout - reset board
+//          ESP.restart();
+//        }
+//    }
   
-    delay(50);
+    //delay(50);
 }

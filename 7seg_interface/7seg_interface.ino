@@ -2,9 +2,9 @@
 SevSeg sevseg; 
 
 void setup(){
-    byte numDigits = 1;
-    byte digitPins[] = {};
-    byte segmentPins[] = {3,5,6,9,10,11,12};
+    byte numDigits = 6;
+    byte digitPins[] = {2,5,4,18,19,23};
+    byte segmentPins[] = {15,13,12,14,27,26,25};//A,B,C,D,E,F,G
     bool resistorsOnSegments = true;
 
     byte hardwareConfig = COMMON_ANODE; 
@@ -13,15 +13,7 @@ void setup(){
 }
 
 void loop(){
-//        for(int i=0;i<10;i++){
-//          sevseg.setNumber(i);  
-//          sevseg.refreshDisplay();
-//          delay(2);
-//          }
-          sevseg.setNumber(5);
+          sevseg.setNumber(631400);
           sevseg.refreshDisplay();
-          //delay(2);
-          //while(1){};
-        
-        
+          //delay(10);
 }

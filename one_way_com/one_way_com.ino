@@ -15,14 +15,14 @@
 const char* ssid = "IITD_WIFI"; // Eduroam SSID
 const char* host = "10.208.67.44"; //external server domain for HTTP connection after authentification
 const uint16_t port = 8090;
-int counter = 0, page = 1;
-const int sample_interval= 500;
-int last_sample_at = 0, total_items = 0;
+int counter = 0;
+int count = 0;
+const int interval= 500;
+int last_sample_at = 0;
 const int readpin1 = 39,readpin2 = 34, confirmpin = 35, resetpin =32, billpin = 33 ;
 String table_id = "T1", page_id1 = "P1", page_id2 = "P2";
-String item_no1 = "N1", item_no2 = "N2";
+String item_id1 = "I1", item_id2 = "I2";
 const int rs = 5, en = 18, d4 = 19, d5 = 21, d6 = 22, d7 = 23;
-float total_amount=0.0;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 bool order[] = {false,false,false,false,false,false,false,false};
 
@@ -38,7 +38,10 @@ void setup() {
   //lcd.autoscroll();
   // Print a message to the LCD.
   lcd.setCursor(0,0);
-  lcd.print("Hungry!Please, Wait.");
+  lcd.print("Hungry!");
+  lcd.setCursor(0,1);
+  lcd.print("Please, Wait...");
+  
   pinMode(readpin1,INPUT);
   pinMode(readpin2,INPUT);
   pinMode(confirmpin,INPUT);
@@ -47,8 +50,6 @@ void setup() {
         
   // set up the LCD's number of columns and rows:
   Serial.println();
-  lcd.setCursor(0,1);
-  lcd.print("Connecting...");
   Serial.print("Connecting to network: ");
   Serial.println(ssid);
   WiFi.disconnect(true);  //disconnect form wifi to set new wifi connection
@@ -72,10 +73,6 @@ void setup() {
   }
   
   Serial.println("");
-  //lcd.setCursor(0,1);
-  //lcd.print("                    ");
-  //lcd.setCursor(0,1);
-  //lcd.print("WiFi connected!");
   Serial.println("WiFi connected");
   Serial.println("IP address set: "); 
   Serial.println(WiFi.localIP()); //print LAN IP
@@ -86,7 +83,6 @@ void setup() {
   lcd.clear();  
   lcd.setCursor(0,0);
   lcd.print("Ready for order!");
-  delay(2000);
 
 }
 //----------------------------loop---------------------------------------------------------------------------------------------------------
@@ -94,27 +90,12 @@ void setup() {
 void loop() {
     if (WiFi.status() == WL_CONNECTED) { //if we are connected to Eduroam network
         if (client.connected()){
-                  lcd.setCursor(0,0);
-                  lcd.print("                   "); 
-                  lcd.setCursor(0,3);
-                  lcd.print("TI:");
-                  lcd.print(total_items);
-                  lcd.setCursor(9,3);
-                  lcd.print("TA:");
-                  lcd.print(total_amount);
-                  while(client.available()) {
-                      String line = client.readStringUntil('\f');
-                      lcd.setCursor(0,0);
-                      lcd.print(line);
-                      delay(1000);
-                      Serial.println(line);
-                  }
                   Order1S = digitalRead(readpin1);
                   Order2S = digitalRead(readpin2);
                   ConfirmS = digitalRead(confirmpin);
                   ResetS = digitalRead(resetpin);
                   BillS = digitalRead(billpin);      
-            if ((millis() - last_sample_at) > sample_interval){
+            if ((millis() - last_sample_at) > interval){
                   last_sample_at = millis();
                   Serial.print(Order1S);
                   Serial.print("\t");
@@ -127,59 +108,35 @@ void loop() {
                   Serial.print(BillS);
                   Serial.println();
                   if (Order1S ==1){
-                    total_items = total_items + 1;  
-                    client.print(table_id+","+page_id1+","+item_no1);
                     lcd.setCursor(0,2);
-                    lcd.print("ITEM 1 Picked.     ");
-                    delay(1000);
-                    lcd.setCursor(0,2);
-                    lcd.print("                   ");
+                    lcd.print("ITEM 1              ");
+                    client.print(table_id+","+page_id1+","+item_id1);
                   }
                   if (Order2S == 1){
-                    total_items = total_items + 1;
-                    client.print(table_id+","+page_id2+","+item_no1);
                     lcd.setCursor(0,2);
-                    lcd.print("ITEM 2 Picked.      ");
-                    delay(1000);
-                    lcd.setCursor(0,2);
-                    lcd.print("                   ");
-                    
+                    lcd.print("ITEM 2              ");
+                    client.print(table_id+","+page_id2+","+item_id1);
                   }
                   if (ConfirmS == 1){
-                    total_items = 0;
-                    client.print("confirm");
-                    //lcd.clear();
+                    lcd.clear();
                     lcd.setCursor(0,2);
                     lcd.print("Confirm             ");
-                    delay(1000);
-                    lcd.setCursor(0,2);
-                    lcd.print("                   ");
-                    
+                    client.print("confirm");
                   }
                   if (ResetS == 1){
-                    total_items = 0;
-                    client.print("reset");
                     lcd.setCursor(0,2);
                     lcd.print("Reset               ");
-                    delay(1000);
-                    lcd.setCursor(0,2);
-                    lcd.print("                   ");
+                    client.print("reset");
                   }
                   if (BillS == 1){
+                    lcd.setCursor(0,2);
+                    lcd.print("Bill Request        ");
                     client.print(table_id+","+"bill");
-                    lcd.setCursor(0,2);
-                    lcd.print("Bill                ");
-                    delay(1000);
-                    lcd.setCursor(0,2);
-                    lcd.print("                   ");
-                    
                   }
             }
         }
         else {
             while (!client.connect(host, port)) {
-              lcd.setCursor(0,0);
-              lcd.print("Connection failed. ");
               Serial.println("Connection to host failed");
               delay(1000);
             }       
@@ -187,9 +144,7 @@ void loop() {
     }
     
     else if (WiFi.status() != WL_CONNECTED) { //if we lost connection, retry
-        lcd.setCursor(0,0);
-        lcd.print("Wi-Fi Disconnected!");
-        Serial.println("Wi-Fi Disconnected!");
+        Serial.println("W-Fi Disconnected!");
         WiFi.begin(ssid);      
     }
     while (WiFi.status() != WL_CONNECTED) { //during lost connection, print dots

@@ -71,7 +71,7 @@ void setup() {
 //    lcd.print("Network Lost.");
 //    lcd.setCursor(0,1);
 //    lcd.print("Reconnecting...");
-//    delay(1000);
+    delay(1000);
 //    //return;
   }
   lcd.clear();  
