@@ -104,11 +104,6 @@ void setup() {
 void loop() {
     if (WiFi.status() == WL_CONNECTED) { //if we are connected to Eduroam network
         if (client.connected()){
-                  //count = count + 1;
-//                  if(count>100){
-//                    client.stop();
-//                    count = 0;
-//                    }
                   if(timeElapsed > status_interval){
                     client.print(table_id+",getstatus");
                     timeElapsed = 0;
@@ -245,5 +240,5 @@ void loop() {
         }
     }
   
-    delay(50);
+    //delay(50);
 }

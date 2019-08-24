@@ -1,11 +1,11 @@
 #include <LiquidCrystal.h>
 
-const int readpin1=4,readpin2=15;
+const int readpin1=39,readpin2=34;
 const int rs = 23, en =22 , d4 = 5, d5 = 18, d6 = 19, d7 = 21;
 bool order[] = {false,false,false,false,false,false,false,false};
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 bool order1=false,order2=false,order3=false,order4=false,order5=false,order6=false,order7=false,order8=false;
-int ButtonReading1,ButtonReading2;
+
 // the setup routine runs once when you press reset:
 void setup() {
   // initialize serial communication at 9600 bits per second:
@@ -48,8 +48,6 @@ void loop() {
       if (order[index]==true){
           order[index]=false;
         }
-    
-    
     }
    
   delay(100);        // delay in between reads for stability

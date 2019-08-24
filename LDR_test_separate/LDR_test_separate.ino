@@ -1,7 +1,7 @@
-int sensorPin = A0; // select the input pin for LDR
-int LDRPin1 = A3;
-int LDRPin2 = A2;
-int LDRPin3 = A1;
+int sensorPin = 36; // select the input pin for LDR
+int LDRPin1 = 16;
+int LDRPin2 = 33;
+int LDRPin3 = 32;
 
 float sensorValue1 = 0.0,sensorValue2 = 0.0,sensorValue3 = 0.0,referValue = 0, reference=0.0, reading = 0.0, upperRange, lowerRange; // variable to store the value coming from the sensor
 int iterations = 200, page = 1;
@@ -9,7 +9,7 @@ float interval = 0.1;
 bool foundFlag = false;
 void setup() {
     
-    Serial.begin(9600); //sets serial port for communication
+    //Serial.begin(9600); //sets serial port for communication
 }
 void loop() {
     //int here = millis();
@@ -33,12 +33,10 @@ void loop() {
       foundFlag = true;
      }
     if (sensorValue2 > lowerRange and sensorValue2 < upperRange){
-      //Serial.println("Page 2");
       page = 3;
       foundFlag = true;
       }
     if ( sensorValue3 > lowerRange and sensorValue3 < upperRange){
-      //Serial.println("Page 3");
       page = 4;
       foundFlag = true;
     }
@@ -49,19 +47,14 @@ void loop() {
     if (foundFlag == true){
         Serial.print("Page : ");
         Serial.println(page);
-        //Serial.print("");
-        //Serial.println("");
 
         page = 1;
       }
     else {
         Serial.print("Page : ");
         Serial.println(page);
-        //Serial.print("");
-        //Serial.println("");
       }
     foundFlag = false;
-    //Serial.println(millis()-here);
     //delay(500);
 
 }

@@ -1,0 +1,36 @@
+\begin{thebibliography}{1}
+
+\bibitem{6}
+{\em 7-Segment Display Interfacing with Arduino UNO}.
+\newblock
+  \url{https://www.electronicwings.com/arduino/7-segment-display-interfacing-with-arduino-uno}.
+
+\bibitem{4}
+{\em ESP8266 module comparison}.
+\newblock
+  \url{https://blog.squix.org/2015/03/esp8266-module-comparison-esp-01-esp-05.html}.
+
+\bibitem{1}
+{\em Getting Started with ESP8266 and Arduino: ESP8266 Arduino Interface}.
+\newblock \url{https://www.electronicshub.org/esp8266-arduino-interface/}.
+
+\bibitem{2}
+{\em How to Connect ESP8266 to WiFi | A Beginner’s Guide}.
+\newblock \url{https://www.electronicshub.org/connect-esp8266-to-wifi/}.
+
+\bibitem{3}
+{\em How to Send Data from Arduino to Webpage using WiFi}.
+\newblock
+  \url{https://circuitdigest.com/microcontroller-projects/sending-arduino-data-to-webpage}.
+
+\bibitem{5}
+{\em Interfacing 16X2 LCD with ESP32 using I2C}.
+\newblock
+  \url{https://circuitdigest.com/microcontroller-projects/interfacing-16x2-lcd-with-esp32-using-i2c}.
+
+\bibitem{7}
+{\em Serially Interfaced, 8-Digit, LED Display Drivers}.
+\newblock
+  \url{https://www.maximintegrated.com/en/products/power/display-power-control/MAX7221.html}.
+
+\end{thebibliography}

@@ -3,18 +3,19 @@ import pymysql
 maxConnections = 4
 database = pymysql.connect('localhost','root','mysql@3006','restaurant') #CONNECTION PARAMETERES for database
 cursor = database.cursor()
-
+print("Server Started!")
 def execute_query(statement):
     cursor.execute(statement)
     return cursor.fetchall()
     
 
 try: 
+    
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)         
-     
     s.bind(('10.208.67.44', 8090))
     s.listen(maxConnections)                 
+    
     request = []
     
     while True:
@@ -37,7 +38,7 @@ try:
      
             else:
                 content  = content.decode()
-                #print(content)
+                print(content)
                 if (not ("bill" in content) and not ("reset" in content) and not ("confirm" in content) and not ("getstatus") in content):
                     #request.append(content)
                     order = content.split(",")

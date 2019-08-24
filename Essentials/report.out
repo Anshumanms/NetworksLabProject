@@ -1,0 +1,10 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Project Architecture}{}% 2
+\BOOKMARK [1][-]{section.3}{Implementation \(Tools and Technologies\)}{}% 3
+\BOOKMARK [1][-]{section.4}{Implementation}{}% 4
+\BOOKMARK [1][-]{section.5}{Bill of Materials}{}% 5
+\BOOKMARK [1][-]{section.6}{Proposed Milestones and timeline of milestones achieved}{}% 6
+\BOOKMARK [1][-]{section.7}{Results}{}% 7
+\BOOKMARK [2][-]{subsection.7.1}{Overall Final Layout and Architecture}{section.7}% 8
+\BOOKMARK [2][-]{subsection.7.2}{User Input and Server Response on LCD}{section.7}% 9
+\BOOKMARK [2][-]{subsection.7.3}{MySQL Database Tables and Config File}{section.7}% 10

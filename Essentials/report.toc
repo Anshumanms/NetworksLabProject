@@ -1,0 +1,10 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}
+\contentsline {section}{\numberline {2}Project Architecture}{3}{section.2}
+\contentsline {section}{\numberline {3}Implementation (Tools and Technologies)}{5}{section.3}
+\contentsline {section}{\numberline {4}Implementation}{6}{section.4}
+\contentsline {section}{\numberline {5}Bill of Materials}{7}{section.5}
+\contentsline {section}{\numberline {6}Proposed Milestones and timeline of milestones achieved}{7}{section.6}
+\contentsline {section}{\numberline {7}Results}{8}{section.7}
+\contentsline {subsection}{\numberline {7.1}Overall Final Layout and Architecture}{8}{subsection.7.1}
+\contentsline {subsection}{\numberline {7.2}User Input and Server Response on LCD}{9}{subsection.7.2}
+\contentsline {subsection}{\numberline {7.3}MySQL Database Tables and Config File}{10}{subsection.7.3}
